@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -11,7 +10,21 @@
     html, body { width: 100%; height: 100%; margin: 0; background: #000; color: #e5e7eb; }
     body { display: flex; align-items: stretch; justify-content: stretch; position: relative; overflow: hidden; }
     #mse { flex: 1; min-height: 0; }
-    #status { position: absolute; top: 12px; left: 12px; padding: 8px 12px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; font-size: 13px; color: #cbd5e1; pointer-events: none; }
+    #status { 
+      position: absolute; 
+      top: 12px; 
+      left: 12px; 
+      padding: 8px 12px; 
+      background: rgba(0,0,0,0.6); 
+      border: 1px solid rgba(255,255,255,0.08); 
+      border-radius: 8px; 
+      font-size: 13px; 
+      color: #cbd5e1; 
+      pointer-events: none; 
+      /* 新增：默认隐藏元素 */
+      display: none; 
+      /* 可选：也可用 opacity: 0; transition: opacity 0.2s; 实现渐变隐藏 */
+    }
   </style>
   <link rel="stylesheet" href="https://unpkg.byted-static.com/xgplayer/3.0.23/dist/index.min.css">
 </head>
@@ -29,7 +42,15 @@
       const isLive = params.get('isLive') !== 'false';
       const statusEl = document.getElementById('status');
 
-      const updateStatus = text => { if (statusEl) statusEl.textContent = text; };
+      // 重写 updateStatus 函数：根据文本是否为空控制显示/隐藏
+      const updateStatus = text => { 
+        if (!statusEl) return;
+        statusEl.textContent = text;
+        // 有文本则显示，无文本则隐藏
+        statusEl.style.display = text ? 'block' : 'none';
+        // 若用 opacity 方案：
+        // statusEl.style.opacity = text ? '1' : '0';
+      };
 
       if (!streamUrl) {
         updateStatus('缺少播放参数');
@@ -99,6 +120,8 @@
 
       try {
         window.player = new window.Player(options);
+        // 初始化成功后，确保隐藏状态提示（防止残留）
+        updateStatus('');
       } catch (error) {
         console.warn('初始化 xgplayer 失败', error);
         updateStatus('播放器失败');
